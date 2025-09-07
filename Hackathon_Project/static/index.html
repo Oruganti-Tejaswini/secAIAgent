@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>secAIAgent — Hack Smarter. Share Faster. Stay Secure.</title>
+<link rel="preload" as="image" href="static/bg.png">
+<link rel="preload" as="image" href="static/logo1.png">
+<style>
+  :root{
+    --bg:#0b0f15;
+    --ink:#f2f6ff;
+    --muted:#a8b6d5;
+    --panel:#0f1525cc;
+    --panel-solid:#0f1422;
+    --line:#223058;
+    --brand:#6aa2ff;
+    --brand-2:#b07bff;
+    --ok:#21d39a;
+    --err:#ff5a66;
+    --radius:16px;
+    --shadow:0 16px 40px rgba(0,0,0,.50);
+    --pad:24px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--ink);background:var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    line-height:1.35;
+  }
+
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-3;
+    background:
+      radial-gradient(1200px 700px at 10% -10%, rgba(120,160,255,.35), transparent 45%),
+      radial-gradient(1100px 680px at 95% -8%, rgba(190,120,255,.35), transparent 45%),
+      #0b0f15;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:url("static/bg.png") center/cover no-repeat fixed;
+    filter:saturate(1.15) contrast(1.08) blur(3px);
+    transform: scale(1.03);
+    opacity:.30;
+  }
+
+  .wrap{max-width:1200px;margin-inline:auto;padding:clamp(16px,3vw,28px)}
+
+  header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:6px 0 12px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand img{width:84px;height:84px;object-fit:contain;border-radius:16px;filter:drop-shadow(0 16px 34px rgba(104,156,255,.45))}
+  .titleBlock{display:flex;flex-direction:column;gap:4px}
+  .titleBlock h1{
+    margin:0;font-weight:900;letter-spacing:.3px;font-size:clamp(28px,4.8vw,42px);
+    background:linear-gradient(135deg,#ffffff 0%,#dfe9ff 35%,#c2d2ff 60%,#a8baff 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 .8px rgba(255,255,255,.9),0 10px 40px rgba(110,160,255,.45),0 2px 14px rgba(120,120,255,.35);
+  }
+  .titleBlock .tag{color:white;opacity:.75;font-weight:600;text-shadow:0 8px 24px rgba(255,255,255,.35)}
+
+  .tabs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:6px 0 18px}
+  .tab{
+    appearance:none;border:0;cursor:pointer;position:relative;
+    display:flex;align-items:center;gap:10px;
+    padding:11px 16px;border-radius:999px;color:#e8eeff;
+    background:linear-gradient(180deg,#162038,#101829);
+    border:1px solid #2a3a63;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 18px rgba(7,10,18,.6),0 1px 0 rgba(255,255,255,.06);
+    transition:.18s ease;
+  }
+
+  .tab svg{width:18px;height:18px;display:block}
+  .tab[aria-selected="true"]{
+    color:#fff;transform:translateY(-1px);
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    border-color:transparent;box-shadow:0 16px 36px rgba(110,160,255,.55),inset 0 1px 0 rgba(255,255,255,.2);
+  }
+
+  .grid{display:grid;gap:16px;grid-template-columns:1fr;align-items:stretch}
+  @media (min-width:980px){ .grid{grid-template-columns: 1.05fr .95fr} }
+  .grid.single{grid-template-columns:1fr}
+  .centered{max-width:860px;margin-inline:auto}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    backdrop-filter:blur(10px) saturate(1.15);
+    box-shadow:var(--shadow);
+    display:flex;flex-direction:column;min-height:0;
+  }
+
+  .card .hd{
+    padding:12px 14px;border-bottom:1px solid var(--line);
+    color:#d9e4ff;display:flex;justify-content:space-between;align-items:center;gap:10px
+  }
+
+  .card .bd{
+    padding:var(--pad);
+    flex:1;min-height:0;display:flex;flex-direction:column;gap:12px;
+  }
+
+  label{display:block;margin:8px 0 6px;color:#d6e2ff;font-size:.95rem}
+  input,textarea,select{
+    width:100%;background:#10182c;border:1px solid #2a3963;color:var(--ink);
+    border-radius:12px;padding:12px;font-size:15px;outline:none;
+    transition:border .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder,textarea::placeholder{color:#8da0cc}
+  input:focus,textarea:focus,select:focus{border-color:#7fb0ff; box-shadow:0 0 0 3px rgba(120,170,255,.22)}
+  textarea{min-height:160px;resize:vertical}
+  .row{display:grid;gap:12px}
+  @media (min-width:680px){ .row.two{grid-template-columns:1fr 1fr} }
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .btn{
+    appearance:none;border:0;cursor:pointer;padding:12px 18px;border-radius:12px;font-weight:800;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));color:white;
+    box-shadow:0 18px 36px rgba(110,160,255,.55);transition:transform .08s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{background:linear-gradient(180deg,#141d33,#0e1526);color:#d7e4ff;box-shadow:none;border:1px solid #2b3d69}
+  .hint{color:#a9b9de;font-size:.92rem}
+
+  #composerCard{display:none}
+  #updates{flex:1}
+
+  .toast{position:fixed;inset:0;display:none;place-items:center;background:rgba(6,8,12,.6);z-index:50}
+  .toast .inner{
+    width:min(560px,92vw);padding:18px 18px 14px;background:var(--panel-solid);
+    border:1px solid #23345c;color:var(--ink);border-radius:18px;
+    box-shadow:0 30px 80px rgba(0,0,0,.65);text-align:center;
+  }
+  .toast .title{font-weight:900;font-size:18px;margin-bottom:6px}
+  .toast.ok .title{color:var(--ok)} .toast.err .title{color:var(--err)}
+  .toast .msg{color:#dce6ff}
+  .toast .close{margin-top:14px;padding:10px 14px;border-radius:10px;border:1px solid #2a3550;background:#121a2c;color:#d7e0f4;cursor:pointer}
+
+  footer{color:#a5b6de;text-align:center;margin-top:12px;font-size:.9rem}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- BRAND -->
+    <header>
+      <div class="brand">
+        <img src="static/logo1.png" alt="secAIAgent shield" />
+        <div class="titleBlock">
+          <h1>secAIAgent</h1>
+          <div class="tag">Hack Smarter. Share Faster. Stay Secure.</div>
+        </div>
+      </div>
+    </header>
+
+  <br>
+
+    <nav class="tabs" role="tablist" aria-label="Integrations">
+      <button class="tab" id="t-slack" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 14a2 2 0 1 0 0 4h2v-2a2 2 0 0 0-2-2Z" fill="#36C5F0"/>
+          <path d="M7 12h2V7a2 2 0 1 0-2 2v3Z" fill="#2EB67D"/>
+          <path d="M10 17a2 2 0 1 0 4 0v-2h-2a2 2 0 0 0-2 2Z" fill="#ECB22E"/>
+          <path d="M12 7v2h5a2 2 0 1 0-2-2h-3Z" fill="#E01E5A"/>
+        </svg>
+        Slack
+      </button>
+
+      <button class="tab" id="t-notion" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="3" stroke="#fff" stroke-opacity=".9"/>
+          <path d="M8 17V7h2.3l5.7 8V7H18v10h-2.3L10 9v8H8Z" fill="#fff"/>
+        </svg>
+        Notion
+      </button>
+
+      <button class="tab" id="t-github" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.9 9.6.5.1.7-.2.7-.5v-2
+                   c-2.8.6-3.4-1.2-3.4-1.2-.5-1.1-1.2-1.4-1.2-1.4-1-.7.1-.7.1-.7
+                   1.1.1 1.7 1.2 1.7 1.2 1 .1.8-1 .8-1 .9-1.6 2.4-1.2 3-.9.1-.8.4-1.3.8-1.6
+                   -2.2-.3-4.5-1.1-4.5-5 0-1.1.4-2 .9-2.7-.1-.2-.4-1.2.1-2.6 0 0 .8-.3 2.8 1
+                   .8-.2 1.7-.3 2.6-.3s1.8.1 2.6.3c2-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.6.6.7.9 1.6.9 2.7
+                   0 3.9-2.3 4.7-4.5 5 .4.3.8 1 .8 2v3c0 .3.2.6.7.5 4-1.3 6.9-5.1 6.9-9.6C22 6.6 17.5 2 12 2Z"
+                fill="#fff"/>
+        </svg>
+        GitHub
+      </button>
+
+      <button class="tab" id="t-gcal" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="17" rx="3" stroke="#fff" stroke-opacity=".95"/>
+          <path d="M7 2v4M17 2v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <rect x="6" y="10" width="4" height="4" rx="1" fill="#fff"/>
+        </svg>
+        Google Calendar
+      </button>
+    </nav>
+
+    <div id="grid" class="grid">
+      <section id="composerCard" class="card">
+        <div class="hd"><strong>Daily Update</strong><span class="hint">One update per line</span></div>
+        <div class="bd">
+          <textarea id="updates" placeholder="- Resolved 9 bugs across UI & Core&#10;- Merged PR #102 and #107&#10;- Drafted onboarding doc in Notion&#10;- Blocked by flaky CI tests"></textarea>
+          <div class="actions">
+            <button class="btn secondary" id="resetBtn" type="button">Reset</button>
+            <div class="hint">Summarize text once click on send</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mainCard" class="card centered">
+        <div class="hd"><strong id="formTitle">Post to Slack</strong></div>
+        <div class="bd">
+          <div class="row two">
+            <div>
+              <label for="userId">User ID (Descope loginId)</label>
+              <input id="userId" placeholder="user@example.com" autocomplete="off" />
+            </div>
+            <div>
+              <label for="tz">Time Zone</label>
+              <select id="tz">
+                <option value="UTC">UTC</option>
+                <option value="America/Detroit">America/Detroit</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Asia/Kolkata">Asia/Kolkata</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="form-slack" class="form">
+            <label for="slackChannel">Channel ID or #channel</label>
+            <input id="slackChannel" placeholder="C09E… or #general" />
+            <label for="sig1">Submitted by</label>
+            <input id="sig1" placeholder="e.g., Name of person submitted by" />
+            <div class="actions"><button class="btn" id="sendSlack">Send to Slack</button></div>
+          </div>
+
+          <div id="form-notion" class="form" hidden>
+            <label for="notionPageId">Notion Page ID</label>
+            <input id="notionPageId" placeholder="Notion Page ID" />
+            <label for="sig">Submitted by</label>
+            <input id="sig" placeholder="e.g., Name of person submitted by" />
+            <div class="actions"><button class="btn" id="sendNotion">Append to Notion</button></div>
+          </div>
+
+          <div id="form-github" class="form" hidden>
+            <label for="repo">Repository (owner/repo)</label>
+            <input id="repo" placeholder="org-or-user/repository" />
+            <label for="ghTitle">Issue Title (required)</label>
+            <input id="ghTitle" placeholder="Concise actionable title" />
+            <label for="ghMsg">Commit / Issue Message (multiline)</label>
+            <textarea id="ghMsg" placeholder="Describe the problem, impact, and steps to reproduce…"></textarea>
+            <div class="actions"><button class="btn" id="sendGitHub">Create GitHub Issue</button></div>
+          </div>
+
+          <div id="form-gcal" class="form" hidden>
+            <div class="row two">
+              <div>
+                <label for="calId">Calendar ID</label>
+                <input id="calId" placeholder="primary or team@domain.com" />
+              </div>
+              <div>
+                <label for="eventTitle">Event Title (required)</label>
+                <input id="eventTitle" placeholder="1:1 Mentorship" />
+              </div>
+            </div>
+            <div class="row two">
+              <div>
+                <label for="startDt">Start</label>
+                <input id="startDt" type="datetime-local" />
+              </div>
+              <div>
+                <label for="endDt">End</label>
+                <input id="endDt" type="datetime-local" />
+              </div>
+            </div>
+            <div class="row two">
+              <div>
+                <label for="tzSelect">Time Zone</label>
+                <select id="tzSelect">
+                  <option value="UTC">UTC</option>
+                  <option value="America/Detroit">America/Detroit</option>
+                  <option value="America/Los_Angeles">America/Los_Angeles</option>
+                  <option value="America/New_York">America/New_York</option>
+                  <option value="Europe/London">Europe/London</option>
+                  <option value="Asia/Kolkata">Asia/Kolkata</option>
+                </select>
+              </div>
+              <div>
+                <label for="submitter">Submitted by (added to title)</label>
+                <input id="submitter" placeholder="e.g., Name" />
+              </div>
+            </div>
+            <label for="notes">Meeting Notes (sent as event description)</label>
+            <textarea id="notes" placeholder="Agenda, notes, links…"></textarea>
+            <div class="actions"><button class="btn" id="sendGcal">Create Calendar Event</button></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>Copyright © 2025 secAIAgent by Tejaswini Oruganti</footer>
+
+  </div>
+
+
+  <div id="toast" class="toast" role="dialog" aria-modal="true" aria-live="assertive">
+    <div class="inner">
+      <div id="toastTitle" class="title">Success</div>
+      <div id="toastMsg" class="msg">Action completed.</div>
+      <button id="toastClose" class="close" type="button">Close</button>
+    </div>
+  </div>
+
+<script>
+
+  const tabs = {
+    slack:  document.getElementById('t-slack'),
+    notion: document.getElementById('t-notion'),
+    github: document.getElementById('t-github'),
+    gcal:   document.getElementById('t-gcal')
+  };
+  const forms = {
+    slack:  document.getElementById('form-slack'),
+    notion: document.getElementById('form-notion'),
+    github: document.getElementById('form-github'),
+    gcal:   document.getElementById('form-gcal')
+  };
+  const composerCard = document.getElementById('composerCard');
+  const formTitle = document.getElementById('formTitle');
+  const grid = document.getElementById('grid');
+  const mainCard = document.getElementById('mainCard');
+
+  function selectTab(name){
+    for(const k of Object.keys(tabs)){
+      tabs[k].setAttribute('aria-selected', String(k===name));
+      forms[k].hidden = (k!==name);
+    }
+    const needsComposer = (name==='slack'||name==='notion');
+    composerCard.style.display = needsComposer ? 'flex' : 'none';
+
+    const single = (name==='github'||name==='gcal');
+    grid.classList.toggle('single', single);
+    mainCard.classList.toggle('centered', single);
+
+    formTitle.textContent =
+      name==='slack'  ? 'Post to Slack' :
+      name==='notion' ? 'Append to Notion' :
+      name==='github' ? 'Create GitHub Issue' :
+                        'Create Google Calendar Event';
+  }
+  tabs.slack.onclick = ()=>selectTab('slack');
+  tabs.notion.onclick= ()=>selectTab('notion');
+  tabs.github.onclick= ()=>selectTab('github');
+  tabs.gcal.onclick  = ()=>selectTab('gcal');
+  selectTab('notion');
+
+  const toast = document.getElementById('toast');
+  const toastTitle = document.getElementById('toastTitle');
+  const toastMsg = document.getElementById('toastMsg');
+  const toastClose = document.getElementById('toastClose');
+  function showToast(ok, title, msg){
+    toast.className = 'toast ' + (ok ? 'ok':'err');
+    toastTitle.textContent = title;
+    toastMsg.textContent = msg;
+    toast.style.display = 'grid';
+    toastClose.focus();
+  }
+  function closeToast(){ toast.style.display='none'; }
+  toastClose.onclick = closeToast;
+  toast.onclick = e => { if(e.target===toast) closeToast(); };
+
+
+  document.getElementById('resetBtn').onclick = () => { document.getElementById('updates').value = ''; };
+
+  const $ = id => document.getElementById(id);
+  const toISO = s => s ? new Date(s).toISOString() : '';
+  function clear(which){
+    if(which==='slack'){ $('slackChannel').value=''; $('sig1').value=''; $('updates').value=''; }
+    if(which==='notion'){ $('notionPageId').value=''; $('sig').value=''; $('updates').value=''; }
+    if(which==='github'){ $('repo').value=''; $('ghTitle').value=''; $('ghMsg').value=''; }
+    if(which==='gcal'){ $('calId').value=''; $('eventTitle').value=''; $('startDt').value=''; $('endDt').value=''; $('notes').value=''; $('submitter').value=''; }
+  }
+
+  $('sendSlack').onclick = async ()=>{
+    const channel = $('slackChannel').value.trim();
+    if(!channel) return showToast(false,'Missing channel','Enter a Slack channel id or #name.');
+    const who = $('sig1').value.trim();
+    let text = $('updates').value.trim() || 'No summary provided.';
+    if(who) text = `${who} — ${text}`;
+    const payload = {
+      agent:'agent_slackbot',
+      user_id:$('userId').value.trim() || 'demo',
+      channel,
+      text
+    };
+    const res = await fetch('/slack/post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await res.json().catch(()=>({}));
+    const ok = !!j.ok;
+    showToast(ok, ok?'Posted to Slack':'Slack Error', ok?'Message delivered.':'Failed to send.');
+    if(ok) clear('slack');
+  };
+
+  $('sendNotion').onclick = async ()=>{
+    const page = $('notionPageId').value.trim();
+    if(!page) return showToast(false,'Missing Page ID','Enter a Notion page id.');
+    const who = $('sig').value.trim();
+    let text = $('updates').value.trim() || 'No summary provided.';
+    if(who) text = `${who} — ${text}`;
+    const payload = { agent:'agent_notion', user_id:$('userId').value.trim() || 'demo', page_id:page, text };
+    const res = await fetch('/notion/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await res.json().catch(()=>({}));
+    const ok = !!j.ok;
+    showToast(ok, ok?'Notion Updated':'Notion Error', ok?'Summary appended.':'Failed to append.');
+    if(ok) clear('notion');
+  };
+
+  $('sendGitHub').onclick = async ()=>{
+    const repo = $('repo').value.trim();
+    const title = $('ghTitle').value.trim();
+    if(!repo) return showToast(false,'Missing repository','Enter owner/repo.');
+    if(!title) return showToast(false,'Missing title','Enter an issue title.');
+    const payload = { agent:'agent_github', user_id:$('userId').value.trim() || 'demo', repo, title, body:$('ghMsg').value.trim() };
+    const res = await fetch('/github/issue',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await res.json().catch(()=>({}));
+    const ok = !!j.ok;
+    showToast(ok, ok?'GitHub Issue Created':'GitHub Error', ok?'Issue opened in repo.':'Failed to create.');
+    if(ok) clear('github');
+  };
+
+  $('sendGcal').onclick = async ()=>{
+    const title = $('eventTitle').value.trim();
+    if(!title) return showToast(false,'Missing title','Enter an event title.');
+    const s = $('startDt').value, e = $('endDt').value;
+    if(!s || !e) return showToast(false,'Missing times','Provide start and end times.');
+    const startISO = toISO(s), endISO = toISO(e);
+    if(new Date(endISO) <= new Date(startISO)) return showToast(false,'Invalid range','End must be after start.');
+
+    const payload = {
+      agent:'agent_gcal',
+      user_id:$('userId').value.trim() || 'demo',
+      calendar_id:$('calId').value.trim() || 'primary',
+      summary: ($('submitter').value.trim() ? `${title} — ${$('submitter').value.trim()}` : title),
+      start_iso:startISO, end_iso:endISO, timeZone:$('tzSelect').value, notes:$('notes').value.trim()
+    };
+
+    const res = await fetch('/gcal/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j = await res.json().catch(()=>({}));
+
+    if(j && j.conflict){
+      if(!confirm('This time conflicts with existing events. Create anyway?')) {
+        return showToast(false,'Cancelled','No event created.');
+      }
+      payload.force = true;
+      const res2 = await fetch('/gcal/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const j2 = await res2.json().catch(()=>({}));
+      const ok2 = !!j2.ok;
+      showToast(ok2, ok2?'Event Created':'Calendar Error', ok2?'Added to Calendar.':'Failed to create.');
+      if(ok2) clear('gcal');
+    } else {
+      const ok = !!(j && j.ok);
+      showToast(ok, ok?'Event Created':'Calendar Error', ok?'Added to Calendar.':'Failed to create.');
+      if(ok) clear('gcal');
+    }
+  };
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    document.querySelectorAll('input,textarea').forEach(el => el.value='');
+    document.getElementById('tz').value = 'America/Detroit';
+    document.getElementById('tzSelect').value = 'America/Detroit';
+  });
+</script>
+</body>
+</html>
