@@ -29,7 +29,7 @@
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     line-height:1.35;
   }
-  /* colorized blurred background image */
+
   body::before{
     content:"";position:fixed;inset:0;z-index:-3;
     background:
@@ -270,7 +270,6 @@
     <footer>Copyright © 2025 secAIAgent by Tejaswini Oruganti</footer>
   </div>
 
-  <!-- Centered feedback modal -->
   <div id="toast" class="toast" role="dialog" aria-modal="true" aria-live="assertive">
     <div class="inner">
       <div id="toastTitle" class="title">Success</div>
@@ -280,7 +279,7 @@
   </div>
 
 <script>
-  // Tabs & layout
+
   const tabs = {
     slack:  document.getElementById('t-slack'),
     notion: document.getElementById('t-notion'),
@@ -322,7 +321,6 @@
   tabs.gcal.onclick  = ()=>selectTab('gcal');
   selectTab('notion');
 
-  // Toast helpers
   const toast = document.getElementById('toast');
   const toastTitle = document.getElementById('toastTitle');
   const toastMsg = document.getElementById('toastMsg');
@@ -338,10 +336,8 @@
   toastClose.onclick = closeToast;
   toast.onclick = e => { if(e.target===toast) closeToast(); };
 
-  // Composer reset
   document.getElementById('resetBtn').onclick = () => { document.getElementById('updates').value = ''; };
 
-  // Helpers
   const $ = id => document.getElementById(id);
   const toISO = s => s ? new Date(s).toISOString() : '';
   function clear(which){
@@ -351,7 +347,6 @@
     if(which==='gcal'){ $('calId').value=''; $('eventTitle').value=''; $('startDt').value=''; $('endDt').value=''; $('notes').value=''; $('submitter').value=''; }
   }
 
-  // Slack
   $('sendSlack').onclick = async ()=>{
     const channel = $('slackChannel').value.trim();
     if(!channel) return showToast(false,'Missing channel','Enter a Slack channel id or #name.');
@@ -371,7 +366,6 @@
     if(ok) clear('slack');
   };
 
-  // Notion
   $('sendNotion').onclick = async ()=>{
     const page = $('notionPageId').value.trim();
     if(!page) return showToast(false,'Missing Page ID','Enter a Notion page id.');
@@ -386,7 +380,6 @@
     if(ok) clear('notion');
   };
 
-  // GitHub
   $('sendGitHub').onclick = async ()=>{
     const repo = $('repo').value.trim();
     const title = $('ghTitle').value.trim();
@@ -400,7 +393,6 @@
     if(ok) clear('github');
   };
 
-  // Google Calendar (send both description + notes)
   $('sendGcal').onclick = async ()=>{
     const title = $('eventTitle').value.trim();
     if(!title) return showToast(false,'Missing title','Enter an event title.');
@@ -418,8 +410,8 @@
       start_iso:startISO,
       end_iso:endISO,
       timeZone:$('tzSelect').value,
-      description: notesText,   // <- what Google Calendar expects
-      notes: notesText          // <- keep for backend compatibility
+      description: notesText,
+      notes: notesText
     };
 
     const res = await fetch('/gcal/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -442,7 +434,7 @@
     }
   };
 
-  // Clear fields on load & set default TZs
+
   window.addEventListener('DOMContentLoaded', ()=>{
     document.querySelectorAll('input,textarea').forEach(el => el.value='');
     document.getElementById('tz').value = 'America/Detroit';
