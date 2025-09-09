@@ -15,10 +15,10 @@ Authentication and token management are handled securely by **Descope Outbound A
 ## MCP Hackathon Theme
 **Theme 1: Build a Purposeful AI Agent**
 
-## Demo Video - 
+## Demo Video 
+https://youtu.be/riBAveHhfRI
 
-
-## Team Members:
+## Team Members
 **Tejaswini Oruganti**
 
 This project solves a **real-world problem** by acting as an automation assistant for daily standups, onboarding, and task updates — all with minimal setup.
